@@ -137,27 +137,18 @@
 			})
 		},
 		hasClass:function(value){
-			var result,i,name,array;
-			if (utility.ifClassList()) {
+			if (!utility.ifClassList()) {
 				return this.some(function(){
 					return this.classList.contains(value);
 				})
 			}
 			else {
-				for (var i=0;i<this.length;i++) {
-					name=this[i].className;
-					array=name.split(' ');
-					if (array.indexOf(value)>=0) {
-						result=true;
-						break
-					}
-					else {
-						result=false;
-					}
-				}
+				return this.some(function(){
+					var name=this.className;
+					var array=name.split(" ");
+					return array.indexOf(value)>=0;
+				})
 			}
-			return result;
-
 		},
 		eq:function(index){
 			return new UnderDollar(this[index]);
@@ -171,8 +162,8 @@
 				else {
 					flag=false;
 				}
-			return flag
 			}
+			return flag
 		},
 		every:function(fn){
 			var flag,i;
