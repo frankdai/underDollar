@@ -37,17 +37,18 @@
 			return !!window.addEventListener;
 		},
 		forEach:function(obj,callback){
-			var i,key;
+			var i,key,value;
 			if (obj.length) {
 				for (i=0;i<obj.length;i++){
-					callback.call(obj[i],i);
+					value=callback.call(obj[i],i,obj[i]);
 				}
 			}
 			else if (typeof obj==='object') {
 				for ( key in obj ) {
-					callback.call(obj[key],key);
+					value=callback.call(obj[key],key);
 				}
 			}
+			return value;
 		},
 		toArray:function(obj){
 			var result=[];
@@ -136,21 +137,54 @@
 			})
 		},
 		hasClass:function(value){
-			var result,i;
-			if (!this.length) {return;}
-			for (var i=0;i<this.length;i++) {
-				if (this[i].className.indexOf(value)>=0) {
-					result=true;
-					break
-				}
-				else {
-					result=false;
+			var result,i,name,array;
+			if (utility.ifClassList()) {
+				return this.some(function(){
+					return this.classList.contains(value);
+				})
+			}
+			else {
+				for (var i=0;i<this.length;i++) {
+					name=this[i].className;
+					array=name.split(' ');
+					if (array.indexOf(value)>=0) {
+						result=true;
+						break
+					}
+					else {
+						result=false;
+					}
 				}
 			}
 			return result;
+
 		},
 		eq:function(index){
 			return new UnderDollar(this[index]);
+		},
+		some:function(fn){
+			var flag,i;
+			for (i=0;i<this.length;i++){
+				if (fn.call(this[i])===true) {
+					return flag=true;
+				}
+				else {
+					flag=false;
+				}
+			return flag
+			}
+		},
+		every:function(fn){
+			var flag,i;
+			for (i=0;i<this.length;i++){
+				if (fn.call(this[i])===false) {
+					return flag=false;
+				}
+				else {
+					flag=true;
+				}
+			return flag
+			}
 		},
 	}
 	window._$=function(elements) {
