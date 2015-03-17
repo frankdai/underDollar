@@ -45,7 +45,7 @@
 			}
 			else if (typeof obj==='object') {
 				for ( key in obj ) {
-					value=callback.call(obj[key],key);
+					value=callback.call(obj[key],key,obj[key]);
 				}
 			}
 			return value;
@@ -240,6 +240,21 @@
 				return this===element;
 			})
 		},
+		create:function(tagName,attr,html) {
+			if (typeof tagName!=='string' && typeof html!=='string') {return};
+			var element=document.createElement(tagName);
+			utility.forEach(attr,function(key,value){
+				value=value.toString();
+				element.setAttribute(key,value);
+			});
+			element.innerHTML=html;
+			return new UnderDollar(element);
+		},
+		appendTo:function(target) {
+			return this.each(function(){
+				target.appendChild(this)
+			})
+		}
 	}
 	window._$=function(elements) {
 		return new UnderDollar(elements)
