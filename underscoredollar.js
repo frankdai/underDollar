@@ -83,6 +83,7 @@
 		else {
 			this[0]=elements;
 		} 
+		this.version='0.1';
 		this.length=elements.length||1;
 		this.constructor=window._$;
 		this.splice=function(){};//hacking the console output http://stackoverflow.com/questions/11886578
@@ -190,6 +191,17 @@
 			}
 			return new UnderDollar(self);
 		},
+		children:function(){
+			var element=this[0];
+			var nodelist=element.childNodes;
+			var results=[];
+			utility.forEach(nodelist,function(key,value){
+				if (this.nodeType===1) {
+					results.push(this);
+				}
+			})
+			return new UnderDollar(results)
+		},
 		some:function(fn){
 			var flag,i;
 			for (i=0;i<this.length;i++){
@@ -222,6 +234,11 @@
 				}
 			})
 			return new UnderDollar(results);
+		},
+		contains:function(element) {
+			return this.some(function(){
+				return this===element;
+			})
 		},
 	}
 	window._$=function(elements) {
