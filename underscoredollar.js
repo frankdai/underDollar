@@ -116,8 +116,17 @@
 				}
 			})			
 		},
-		once:function(){
-			
+		once:function(type,listener){
+			var callback=function(eventObj){
+				this.removeEventListener(type,callback);
+				listener.call(this,eventObj);
+			}
+			if (typeof listener!=='function') {
+				return;
+			}
+			return this.each(function(){
+				this.addEventListener(type,callback,false);
+			});
 		},
 		addClass:function(value){
 			return this.each(function(){
@@ -179,7 +188,6 @@
 			else if (this.length===0) {
 				self=this;
 			}
-
 			return new UnderDollar(self);
 		},
 		some:function(fn){
@@ -206,8 +214,14 @@
 			return flag
 			}
 		},
-		filter:function(){
-			var results;
+		filter:function(fn){
+			var results=[];
+			this.each(function(){
+				if (fn.call(this)===true) {
+					results.push(this);
+				}
+			})
+			return new UnderDollar(results);
 		},
 	}
 	window._$=function(elements) {
