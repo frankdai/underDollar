@@ -57,9 +57,24 @@
 			})
 			return result;
 		},
+		checkDom:function(elements) {
+			if (elements.length) {
+				if (elements[0].tagName)
+				return true
+			}
+			else if (elements.tagName) {
+				return true
+			}
+			else {
+				return false
+			}
+		},
 	}
 	var UnderDollar=function (elements) {
 		var i;
+		if (!utility.checkDom(elements)) {
+			throw ('not a DOM element')
+		}
 		if (elements.length) {
 			for (i=0;i<elements.length;i++) {
 			this[i]=elements[i];
@@ -153,6 +168,20 @@
 		eq:function(index){
 			return new UnderDollar(this[index]);
 		},
+		parent:function(){
+			var self={};
+			if (this.length!==0) {
+				this.each(function(index){
+					self[index]=this.parentNode;
+				})
+				self.length=this.length;		
+			}
+			else if (this.length===0) {
+				self=this;
+			}
+
+			return new UnderDollar(self);
+		},
 		some:function(fn){
 			var flag,i;
 			for (i=0;i<this.length;i++){
@@ -176,6 +205,9 @@
 				}
 			return flag
 			}
+		},
+		filter:function(){
+			var results;
 		},
 	}
 	window._$=function(elements) {
