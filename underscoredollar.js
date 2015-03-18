@@ -69,11 +69,27 @@
 				return false
 			}
 		},
+		camelCase:function(input) {
+    		var result=input.toLowerCase().replace(/-(.)/g, function(match, group1) {
+        		return group1.toUpperCase();
+    		});
+			return result.replace(result[0],result[0].toLowerCase())
+		},
+		stripScripts:function(s) {
+    		var div = document.createElement('div');
+    		div.innerHTML = s;
+		    var scripts = div.getElementsByTagName('script');
+		    var i = scripts.length;
+		    while (i--) {
+		      scripts[i].parentNode.removeChild(scripts[i]);
+		    }
+		    return div.innerHTML;
+  		},
 	}
 	var UnderDollar=function (elements) {
 		var i;
 		if (!utility.checkDom(elements)) {
-			throw ('not a DOM element')
+			throw new TypeError('not a DOM element')
 		}
 		if (elements.length) {
 			for (i=0;i<elements.length;i++) {
@@ -90,6 +106,7 @@
 		return this;
 	}
 	UnderDollar.prototype={
+		//basic looping function
 		each:function(fn){
 			if (typeof fn==='function') {
 				for (i=0;i<this.length;i++) {
@@ -98,6 +115,7 @@
 			}
 			return this;
 		},
+		//event handler
 		on:function(type,callback){
 			return this.each(function(){
 				this.addEventListener(type,function(event){
@@ -129,6 +147,7 @@
 				this.addEventListener(type,callback,false);
 			});
 		},
+		//class manipulation
 		addClass:function(value){
 			return this.each(function(){
 				if (utility.ifClassList()){
@@ -148,7 +167,6 @@
 					this.classList.remove(value);
 					return;
 				}
-
 				if (pos>=0) {
 					array.splice(pos,1);
 					this.className=array.join(' ');
@@ -175,32 +193,9 @@
 				})
 			}
 		},
+		//logic operation
 		eq:function(index){
 			return new UnderDollar(this[index]);
-		},
-		parent:function(){
-			var self={};
-			if (this.length!==0) {
-				this.each(function(index){
-					self[index]=this.parentNode;
-				})
-				self.length=this.length;		
-			}
-			else if (this.length===0) {
-				self=this;
-			}
-			return new UnderDollar(self);
-		},
-		children:function(){
-			var element=this[0];
-			var nodelist=element.childNodes;
-			var results=[];
-			utility.forEach(nodelist,function(key,value){
-				if (this.nodeType===1) {
-					results.push(this);
-				}
-			})
-			return new UnderDollar(results)
 		},
 		some:function(fn){
 			var flag,i;
@@ -235,26 +230,82 @@
 			})
 			return new UnderDollar(results);
 		},
+		//DOM manipulation 
 		contains:function(element) {
 			return this.some(function(){
 				return this===element;
 			})
 		},
+		parent:function(){
+			var self={};
+			if (this.length!==0) {
+				this.each(function(index){
+					self[index]=this.parentNode;
+				})
+				self.length=this.length;		
+			}
+			else if (this.length===0) {
+				self=this[0];
+			}
+			return new UnderDollar(self);
+		},
+		children:function(){
+			var element=this[0];
+			var nodelist=element.childNodes;
+			var results=[];
+			utility.forEach(nodelist,function(key,value){
+				if (this.nodeType===1) {
+					results.push(this);
+				}
+			})
+			return new UnderDollar(results)
+		},
 		create:function(tagName,attr,html) {
-			if (typeof tagName!=='string' && typeof html!=='string') {return};
+			if (typeof tagName!=='string') {return};
 			var element=document.createElement(tagName);
-			utility.forEach(attr,function(key,value){
-				value=value.toString();
-				element.setAttribute(key,value);
-			});
-			element.innerHTML=html;
+			if (html) {html=utility.stripScripts(html);}
+			if (typeof attr==='object') {
+				utility.forEach(attr,function(key,value){
+					value=value.toString();
+					element.setAttribute(key,value);
+				});
+				element.innerHTML=html||'';
+			}
+			else if (typeof attr==='string') {
+				element.innerHTML=attr;
+			}
 			return new UnderDollar(element);
 		},
 		appendTo:function(target) {
 			return this.each(function(){
 				target.appendChild(this)
 			})
-		}
+		},
+		prependTo:function(target){
+			return this.each(function(){
+				target.insertBefore(this,target.firstChild);
+			})
+		},
+		remove:function(){
+			return this.each(function(){
+				this.parentNode.removeChild(this)
+			})
+		},
+		html:function(string){
+			var results=[];
+			if (!string) {
+				utility.forEach(this,function(key,value){
+					results.push(this.innerHTML)
+				})
+				return results;
+			}
+			else {
+				string=utility.stripScripts(string);
+				return this.each(function(){
+					this.innerHTML=string;
+				})
+			}
+		},
 	}
 	window._$=function(elements) {
 		return new UnderDollar(elements)
