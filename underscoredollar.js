@@ -28,7 +28,7 @@
     	return -1;
   	};
 	}
-
+	//libraray-specific private functions
 	var utility={
 		ifClassList:function(){
 			return !!document.body.classList;
@@ -85,6 +85,13 @@
 		    }
 		    return div.innerHTML;
   		},
+  		copy:function(elements) {
+  			var results=[];
+  			utility.forEach(elements,function(){
+  				results.push(this.cloneNode(true))
+  			})
+  			return new UnderDollar(results);
+  		}
 	}
 	var UnderDollar=function (elements) {
 		var i;
@@ -274,17 +281,44 @@
 			else if (typeof attr==='string') {
 				element.innerHTML=attr;
 			}
-			return new UnderDollar(element);
+			return element;
 		},
-		appendTo:function(target) {
-			return this.each(function(){
+		appendTo:function(target,ifCopy) {
+			var that;
+			if (ifCopy) {
+				that=utility.copy(this);
+			}
+			else {
+				that=this;
+			}
+			return that.each(function(){
 				target.appendChild(this)
 			})
 		},
-		prependTo:function(target){
-			return this.each(function(){
-				target.insertBefore(this,target.firstChild);
+		prependTo:function(target,ifCopy){
+			var that;
+			var child=target.firstChild;
+			if (ifCopy) {
+				that=utility.copy(this);
+			}
+			else {
+				that=this;
+			}
+			return that.each(function(){
+				target.insertBefore(this,child);
 			})
+		},
+		append:function(child){
+			return this.each(function(){
+				this.appendChild(child);
+				child=child.cloneNode(true);
+			})
+		},
+		prepend:function(child) {
+			return this.each(function(){
+				this.insertBefore(child,this.firstChild);
+				child=child.cloneNode(true);
+			});
 		},
 		remove:function(){
 			return this.each(function(){
@@ -305,6 +339,9 @@
 					this.innerHTML=string;
 				})
 			}
+		},
+		copy:function(){
+			return utility.copy(this);
 		},
 	}
 	window._$=function(elements) {
