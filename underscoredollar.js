@@ -328,16 +328,28 @@
 		html:function(string){
 			var results=[];
 			if (!string) {
-				utility.forEach(this,function(key,value){
-					results.push(this.innerHTML)
-				})
-				return results;
+				if (this.length>1) {
+					utility.forEach(this,function(key,value){
+						results.push(this.innerHTML)
+					})
+					return results;
+				}
+				else {
+					return this[0].innerHTML;
+				}
 			}
 			else {
-				string=utility.stripScripts(string);
-				return this.each(function(){
-					this.innerHTML=string;
-				})
+				if (typeof string==='string'){
+					string=utility.stripScripts(string);
+					return this.each(function(){
+						this.innerHTML=string;
+					})
+				}
+				else if (string instanceof Array) {
+					return this.each(function(index){
+						this.innerHTML=utility.stripScripts(string[index]);
+					})
+				}
 			}
 		},
 		copy:function(){
