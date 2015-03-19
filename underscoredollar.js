@@ -95,6 +95,14 @@
 	}
 	var UnderDollar=function (elements) {
 		var i;
+		if (typeof elements==='string') {
+			try {
+				elements=document.querySelectorAll(elements);
+			}
+			catch (e) {
+				console.log(e.message);
+			}
+		}
 		if (!utility.checkDom(elements)) {
 			throw new TypeError('not a DOM element')
 		}
@@ -237,12 +245,12 @@
 			})
 			return new UnderDollar(results);
 		},
-		//DOM manipulation 
 		contains:function(element) {
 			return this.some(function(){
 				return this===element;
 			})
 		},
+		//DOM traversing
 		parent:function(){
 			var self={};
 			if (this.length!==0) {
@@ -267,6 +275,7 @@
 			})
 			return new UnderDollar(results)
 		},
+		//DOM manipulation 
 		create:function(tagName,attr,html) {
 			if (typeof tagName!=='string') {return};
 			var element=document.createElement(tagName);
@@ -340,6 +349,9 @@
 				this.parentNode.removeChild(this)
 			})
 		},
+		replace:function(){
+
+		},
 		html:function(string){
 			var results=[];
 			if (!string) {
@@ -370,6 +382,30 @@
 		copy:function(){
 			return utility.copy(this);
 		},
+		//css style
+		css:function(key,value){
+			if (typeof key==='object') {
+				return this.each(function(){
+					var that=this;
+					utility.forEach(key,function(key,value){
+						var covert=utility.camelCase(key);
+						if (typeof value==='number') {value=value+'px';}
+						that.style[covert]=value;
+					})
+				})
+			}
+			else if (typeof key==='string') {
+				return this.each(function(){
+					var covert=utility.camelCase(key);
+					if (typeof value==='number') {value=value+'px';}
+					this.style[covert]=value;
+				})
+			}
+		},
+		//dimension and position
+
+
+		//
 	}
 	window._$=function(elements) {
 		return new UnderDollar(elements)
