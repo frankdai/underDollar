@@ -91,7 +91,7 @@
   				results.push(this.cloneNode(true))
   			})
   			return new UnderDollar(results);
-  		}
+  		},
 	}
 	var UnderDollar=function (elements) {
 		var i;
@@ -114,7 +114,7 @@
 		else {
 			this[0]=elements;
 		} 
-		this.version='0.1';
+		this.dat={};
 		this.length=elements.length||1;
 		this.constructor=window._$;
 		this.splice=function(){};//hacking the console output http://stackoverflow.com/questions/11886578
@@ -208,7 +208,7 @@
 				})
 			}
 		},
-		//logic operation
+		//collection
 		eq:function(index){
 			return new UnderDollar(this[index]);
 		},
@@ -249,6 +249,11 @@
 			return this.some(function(){
 				return this===element;
 			})
+		},
+		map:function(fn) {
+			return this.each(function(){
+				fn.call(this)
+			});
 		},
 		//DOM traversing
 		parent:function(){
@@ -384,6 +389,7 @@
 		},
 		//css style
 		css:function(key,value){
+			var array=[];
 			if (typeof key==='object') {
 				return this.each(function(){
 					var that=this;
@@ -395,19 +401,63 @@
 				})
 			}
 			else if (typeof key==='string') {
-				return this.each(function(){
-					var covert=utility.camelCase(key);
-					if (typeof value==='number') {value=value+'px';}
-					this.style[covert]=value;
-				})
+				if (value) {
+					return this.each(function(){
+						var covert=utility.camelCase(key);
+						if (typeof value==='number') {value=value+'px';}
+						this.style[covert]=value;
+					});
+				}
+				else {
+					this.each(function(){
+						var covert=utility.camelCase(key);
+						var style=window.getComputedStyle(this)[covert];
+						array.push(style);
+					});
+					return array.length===1?array[0]:array;
+				}
 			}
 		},
 		//dimension and position
 
 
-		//
+		//animation
+
+		//misc
+
+		//data
+		data:function(attr,value) {
+			var self=this;
+			if (value===undefined && typeof attr==='object') {
+				utility.forEach(attr,function(key,val){
+					self.dat[key]=val;
+				});
+				return this
+			}
+			if (value!==undefined && typeof attr==='string')  {
+					self.dat[attr]=value;
+					return self
+				}
+			if (value===undefined && typeof attr==='string'){
+				return this.dat[attr];
+			}
+			else {
+				return this.dat;
+			}
+		}
 	}
-	window._$=function(elements) {
-		return new UnderDollar(elements)
-	}
+	window.UnderDollar=function(elements) {
+		return new UnderDollar(elements);
+	};
+	window.UnderDollar.ajax=function(){
+
+	};
+	window.UnderDollar.extend=function(obj){
+		utility.forEach(obj,function(key,func){
+			if (typeof key==='string'&&typeof func==='function'){
+				UnderDollar.prototype[key]=func;
+			}
+		});
+	};
+	window._$=window.UnderDollar;
 })(window)
