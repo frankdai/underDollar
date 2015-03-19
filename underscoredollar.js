@@ -428,7 +428,7 @@
 		//data
 		data:function(attr,value) {
 			var self=this;
-			if (value===undefined && typeof attr==='object') {
+			if (typeof attr==='object') {
 				utility.forEach(attr,function(key,val){
 					self.dat[key]=val;
 				});
