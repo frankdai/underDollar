@@ -281,12 +281,12 @@
 			else if (typeof attr==='string') {
 				element.innerHTML=attr;
 			}
-			return element;
+			return new UnderDollar(element);
 		},
 		appendTo:function(target,ifCopy) {
 			var that;
 			if (ifCopy) {
-				that=utility.copy(this);
+				that=this.copy();
 			}
 			else {
 				that=this;
@@ -299,7 +299,7 @@
 			var that;
 			var child=target.firstChild;
 			if (ifCopy) {
-				that=utility.copy(this);
+				that=this.copy();
 			}
 			else {
 				that=this;
@@ -319,6 +319,21 @@
 				this.insertBefore(child,this.firstChild);
 				child=child.cloneNode(true);
 			});
+		},
+		insertBefore:function(target){
+			return this.each(function(){
+				target.parentNode.insertBefore(this,target);
+			})
+		},
+		insertAfter:function(target){
+			var sibling=target.nextSibling;
+			console.log(sibling);
+			while (sibling.nodeType!==1) {
+				sibling=sibling.nextSibling;
+			}
+			return this.each(function(){
+				sibling.parentNode.insertBefore(this,sibling);
+			})
 		},
 		remove:function(){
 			return this.each(function(){
