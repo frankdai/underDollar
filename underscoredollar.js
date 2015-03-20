@@ -92,6 +92,32 @@
   			})
   			return new UnderDollar(results);
   		},
+  		animate:function(element,property,initValue,finalValue,time,callback){
+			var step=(parseInt(finalValue)-parseInt(initValue))/(time/(17));
+			var pace=parseInt(initValue);
+			element.style[property]=initValue;
+			var t=window.setInterval(function(){
+				console.log(pace)
+				if (pace<parseInt(finalValue)) {
+					pace+=step;
+					element.style[property]=pace.toFixed(6)+'px';
+				}
+				else {
+					window.clearInterval(t);
+					callback()
+				}
+			},17)
+		},
+		mergeOptions:function(obj1,obj2) {
+	        var obj3={};
+	        for (var key in obj1) {
+	            obj3[key]=obj1[key];
+	        }
+	        for (var key in obj2) {
+	            obj3[key]=obj2[key];
+	        }
+	        return obj3;
+    	},
 	}
 	var UnderDollar=function (elements) {
 		var i;
@@ -133,10 +159,18 @@
 		//event handler
 		on:function(type,callback){
 			return this.each(function(){
-				this.addEventListener(type,function(event){
-					callback.call(this,event);
-				},false)
-			})
+				if (utility.ifEventListener()){
+					this.addEventListener(type,function(event){
+						callback.call(this,event);
+					},false);
+				}
+				else if (window.attachEvent) {
+					this.attachEvent('on'+type,callback);
+				} 
+				else {
+					this['on'+type]=callback;
+				}
+			});
 		},
 		off:function(type,listener){
 			return this.each(function(){
@@ -278,7 +312,12 @@
 					results.push(this);
 				}
 			})
-			return new UnderDollar(results)
+			if (results[0]!==undefined) {
+				return new UnderDollar(results);
+			}
+			else {
+				return null
+			}
 		},
 		//DOM manipulation 
 		create:function(tagName,attr,html) {
@@ -419,10 +458,32 @@
 			}
 		},
 		//dimension and position
+		width:function(){
+			return this[0].offsetWidth;
+		},
+		height:function(){
+			return this[0].offsetHeight;
+		},
+		innerWidth:function(){
+			return this[0].clientWidth;
+		},
+		innerHeight:function(){
+			return this[0].clientHeight;
+		},
+		position:function(){
 
-
+		},
 		//animation
-
+		animate:function(property,options){
+			var defaults={
+				'from':this.eq(0).css(property),
+				'to':this.eq(0).css(property),
+				'duration':400,
+				'callback':function(){},
+			}
+			options=utility.mergeOptions(defaults,options);
+			utility.animate(this[0],property,options.from,options.to,options.duration,options.callback)
+		},
 		//misc
 
 		//data
@@ -449,8 +510,39 @@
 	window.UnderDollar=function(elements) {
 		return new UnderDollar(elements);
 	};
-	window.UnderDollar.ajax=function(){
-
+	window.UnderDollar.ajax=function(options){
+		var defaults={
+			'type':'GET',
+			url:'/',
+			beforeSend:function(){},
+			loading:function(){},
+			complete:function(){},
+			error:function(){},
+		};
+		options=utility.mergeOptions(defaults,options);
+		var xhr=new XMLHttpRequest();
+		xhr.open(options.type,options.url,true);
+		//xhr.setRequestHeader(options.request.head,options.request.value);
+		if (options.data) {
+			xhr.send(options.data);
+		}
+		else {
+			xhr.send()
+		}
+		xhr.onreadystatechange=function(){
+			if (xhr.readyState==1) {
+				options.beforeSend();
+			}
+			if (xhr.readyState==3) {
+				options.loading();
+			}
+			if (xhr.readyState==4 && xhr.status==200) {
+				options.complete.call(this,xhr.response)
+			}
+			if (xhr.readyState==4 && xhr.status!==200) {
+				options.error.call(this)
+			}
+		}
 	};
 	window.UnderDollar.extend=function(obj){
 		utility.forEach(obj,function(key,func){
