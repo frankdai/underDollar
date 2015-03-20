@@ -93,20 +93,38 @@
   			return new UnderDollar(results);
   		},
   		animate:function(element,property,initValue,finalValue,time,callback){
-			var step=(parseInt(finalValue)-parseInt(initValue))/(time/(17));
+			var step,t
 			var pace=parseInt(initValue);
+			var suffix=finalValue.indexOf('%')>0?'%':'px';
 			element.style[property]=initValue;
-			var t=window.setInterval(function(){
-				console.log(pace)
-				if (pace<parseInt(finalValue)) {
-					pace+=step;
-					element.style[property]=pace.toFixed(6)+'px';
-				}
-				else {
-					window.clearInterval(t);
-					callback()
-				}
-			},17)
+			if (parseInt(finalValue)>parseInt(initValue)){
+				step=(parseInt(finalValue)-parseInt(initValue))/(time/(17));
+				t=window.setInterval(function(){
+					console.log(pace+suffix)
+					if (pace<parseInt(finalValue)) {
+						pace+=step;
+						element.style[property]=pace.toFixed(2)+suffix
+					}
+					else {
+						window.clearInterval(t);
+						callback()
+					}
+				},17)
+			}
+			else {
+				step=(parseInt(initValue)-parseInt(finalValue))/(time/(17));
+				t=window.setInterval(function(){
+					console.log(pace)
+					if (pace>parseInt(finalValue)) {
+						pace-=step;
+						element.style[property]=pace.toFixed(2)+suffix;
+					}
+					else {
+						window.clearInterval(t);
+						callback()
+					}
+				},17)
+			}
 		},
 		mergeOptions:function(obj1,obj2) {
 	        var obj3={};
