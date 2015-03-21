@@ -96,11 +96,11 @@
 			var step,t
 			var pace=parseInt(initValue);
 			var suffix=finalValue.indexOf('%')>0?'%':'px';
+			property=utility.camelCase(property);
 			element.style[property]=initValue;
 			if (parseInt(finalValue)>parseInt(initValue)){
-				step=(parseInt(finalValue)-parseInt(initValue))/(time/(17));
+				step=(parseInt(finalValue)-parseInt(initValue))/(time/(1000/60));
 				t=window.setInterval(function(){
-					console.log(pace+suffix)
 					if (pace<parseInt(finalValue)) {
 						pace+=step;
 						element.style[property]=pace.toFixed(2)+suffix
@@ -112,12 +112,11 @@
 				},17)
 			}
 			else {
-				step=(parseInt(initValue)-parseInt(finalValue))/(time/(17));
+				step=(parseInt(initValue)-parseInt(finalValue))/(time/(1000/60));
 				t=window.setInterval(function(){
-					console.log(pace)
 					if (pace>parseInt(finalValue)) {
 						pace-=step;
-						element.style[property]=pace.toFixed(2)+suffix;
+						element.style[property]=pace.toFixed(6)+suffix;
 					}
 					else {
 						window.clearInterval(t);
@@ -499,8 +498,36 @@
 				'duration':400,
 				'callback':function(){},
 			}
+			var lengthValue=['width','height','margin','padding','margin','left','top','bottom','right'];
+			var numericValue=['opacity']
 			options=utility.mergeOptions(defaults,options);
 			utility.animate(this[0],property,options.from,options.to,options.duration,options.callback)
+		},
+		hide:function(time) {
+			var self=this;
+			var original=self.css('height');
+			var displayType=self.css('display');
+			if (!time) {
+				self[0].style.display='none';
+				self.data({'OriginalHeight':original,'OriginalType':displayType});
+			}
+			else if (typeof time==='number') {
+				self.animate('height',{'to':'0px','duration':time,callback:function(){
+					self.css({'display':'none'}).data({'OriginalHeight':original,'OriginalType':displayType});
+				}})
+			}
+		},
+		show:function(time){
+			var self=this;
+			var original=self.data('OriginalHeight');
+			var displayType=self.dat.OriginalType;
+			console.log(displayType)
+			if (!time) {
+				self[0].style.display=displayType;
+			}
+			else if  (typeof time==='number') {
+				self.css({'display':displayType}).animate('height',{'from':'0px','to':original,'duration':time})
+			}
 		},
 		//misc
 
