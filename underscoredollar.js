@@ -501,33 +501,23 @@
 			var lengthValue=['width','height','margin','padding','margin','left','top','bottom','right'];
 			var numericValue=['opacity']
 			options=utility.mergeOptions(defaults,options);
-			utility.animate(this[0],property,options.from,options.to,options.duration,options.callback)
+			utility.animate(this[0],property,options.from,options.to,options.duration,options.callback);
+			return this;
 		},
-		hide:function(time) {
+		hide:function() {
 			var self=this;
-			var original=self.css('height');
-			var displayType=self.css('display');
-			if (!time) {
-				self[0].style.display='none';
-				self.data({'OriginalHeight':original,'OriginalType':displayType});
-			}
-			else if (typeof time==='number') {
-				self.animate('height',{'to':'0px','duration':time,callback:function(){
-					self.css({'display':'none'}).data({'OriginalHeight':original,'OriginalType':displayType});
-				}})
-			}
+			return this.each(function(){
+				var displayType=window.getComputedStyle(this).display;
+				this.style.display="none";
+				this.setAttribute('data-originalDisplayValue',displayType)
+			});
 		},
-		show:function(time){
-			var self=this;
-			var original=self.data('OriginalHeight');
-			var displayType=self.dat.OriginalType;
-			console.log(displayType)
-			if (!time) {
-				self[0].style.display=displayType;
-			}
-			else if  (typeof time==='number') {
-				self.css({'display':displayType}).animate('height',{'from':'0px','to':original,'duration':time})
-			}
+		show:function(){
+			return this.each(function(index){
+				var style=this.getAttribute('data-originalDisplayValue');
+				this.style.display=style;
+				this.removeAttribute('data-originalDisplayValue')
+			});
 		},
 		//misc
 
