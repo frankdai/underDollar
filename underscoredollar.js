@@ -285,7 +285,7 @@
 			})
 		},
 		map:function(fn) {
-			return this.each(function(){
+			return this.copy().each(function(){
 				fn.call(this)
 			});
 		},
