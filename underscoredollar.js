@@ -553,11 +553,14 @@
 			loading:function(){},
 			complete:function(){},
 			error:function(){},
+			'responseType':'text',
 		};
 		options=utility.mergeOptions(defaults,options);
 		var xhr=new XMLHttpRequest();
 		xhr.open(options.type,options.url,true);
-		//xhr.setRequestHeader(options.request.head,options.request.value);
+		if (options.request) {
+			xhr.setRequestHeader(options.request.head,options.request.value);
+		}
 		if (options.data) {
 			xhr.send(options.data);
 		}
@@ -572,7 +575,12 @@
 				options.loading();
 			}
 			if (xhr.readyState==4 && xhr.status==200) {
-				options.complete.call(this,xhr.response)
+				if (options.responseType==='JSON') {
+					options.complete.call(this,JSON.parse(xhr.response));
+				}
+				else {
+					options.complete.call(this,xhr.response)
+				}
 			}
 			if (xhr.readyState==4 && xhr.status!==200) {
 				options.error.call(this)
