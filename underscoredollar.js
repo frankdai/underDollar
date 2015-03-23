@@ -93,20 +93,37 @@
   			return new UnderDollar(results);
   		},
   		animate:function(element,property,initValue,finalValue,time,callback){
-			var step=(parseInt(finalValue)-parseInt(initValue))/(time/(17));
+			var step,t
 			var pace=parseInt(initValue);
+			var suffix=finalValue.indexOf('%')>0?'%':'px';
+			property=utility.camelCase(property);
 			element.style[property]=initValue;
-			var t=window.setInterval(function(){
-				console.log(pace)
-				if (pace<parseInt(finalValue)) {
-					pace+=step;
-					element.style[property]=pace.toFixed(6)+'px';
-				}
-				else {
-					window.clearInterval(t);
-					callback()
-				}
-			},17)
+			if (parseInt(finalValue)>parseInt(initValue)){
+				step=(parseInt(finalValue)-parseInt(initValue))/(time/(1000/60));
+				t=window.setInterval(function(){
+					if (pace<parseInt(finalValue)) {
+						pace+=step;
+						element.style[property]=pace.toFixed(2)+suffix
+					}
+					else {
+						window.clearInterval(t);
+						callback()
+					}
+				},17)
+			}
+			else {
+				step=(parseInt(initValue)-parseInt(finalValue))/(time/(1000/60));
+				t=window.setInterval(function(){
+					if (pace>parseInt(finalValue)) {
+						pace-=step;
+						element.style[property]=pace.toFixed(6)+suffix;
+					}
+					else {
+						window.clearInterval(t);
+						callback()
+					}
+				},17)
+			}
 		},
 		mergeOptions:function(obj1,obj2) {
 	        var obj3={};
@@ -481,8 +498,26 @@
 				'duration':400,
 				'callback':function(){},
 			}
+			var lengthValue=['width','height','margin','padding','margin','left','top','bottom','right'];
+			var numericValue=['opacity']
 			options=utility.mergeOptions(defaults,options);
-			utility.animate(this[0],property,options.from,options.to,options.duration,options.callback)
+			utility.animate(this[0],property,options.from,options.to,options.duration,options.callback);
+			return this;
+		},
+		hide:function() {
+			var self=this;
+			return this.each(function(){
+				var displayType=window.getComputedStyle(this).display;
+				this.style.display="none";
+				this.setAttribute('data-originalDisplayValue',displayType)
+			});
+		},
+		show:function(){
+			return this.each(function(index){
+				var style=this.getAttribute('data-originalDisplayValue');
+				this.style.display=style;
+				this.removeAttribute('data-originalDisplayValue')
+			});
 		},
 		//misc
 
