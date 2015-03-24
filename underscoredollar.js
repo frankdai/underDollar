@@ -542,10 +542,10 @@
 			}
 		}
 	}
-	window.UnderDollar=function(elements) {
+	var underDollar=function(elements) {
 		return new UnderDollar(elements);
 	};
-	window.UnderDollar.ajax=function(options){
+	underDollar.ajax=function(options){
 		var defaults={
 			'type':'GET',
 			url:'/',
@@ -587,12 +587,22 @@
 			}
 		}
 	};
-	window.UnderDollar.extend=function(obj){
+	underDollar.extend=function(obj){
 		utility.forEach(obj,function(key,func){
 			if (typeof key==='string'&&typeof func==='function'){
 				UnderDollar.prototype[key]=func;
 			}
 		});
 	};
-	window._$=window.UnderDollar;
+	if ( typeof module === "object" && typeof module.exports === "object" ) {
+		module.exports = underDollar;
+	} 
+	else {
+		if ( typeof define === "function" && define.amd ) {
+			define(function () { return underDollar; } );
+		}
+		else {
+			window.underDollar = window._$ = underDollar;
+		}
+	}
 })(window)
