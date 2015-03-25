@@ -166,11 +166,9 @@
 	UnderDollar.prototype={
 		//basic looping function
 		each:function(fn){
-			if (typeof fn==='function') {
-				for (i=0;i<this.length;i++) {
-					fn.call(this[i],i,this[i])
-				}
-			}
+			utility.forEach(this,function(index,element){
+				fn.call(this,index,element);
+			})
 			return this;
 		},
 		//event handler
@@ -258,6 +256,18 @@
 					return array.indexOf(value)>=0;
 				})
 			}
+		},
+		toggleClass:function(value){
+			utility.forEach(this,function(i,el){
+				var current=new UnderDollar(el)
+				if (current.hasClass(value)){
+					current.removeClass(value);
+				}
+				else {
+					current.addClass(value);
+				}
+			});
+			return this;
 		},
 		//collection
 		eq:function(index){
@@ -520,7 +530,6 @@
 			});
 		},
 		//misc
-
 		//data
 		data:function(attr,value) {
 			var self=this;
