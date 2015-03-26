@@ -517,16 +517,12 @@
 		hide:function() {
 			var self=this;
 			return this.each(function(){
-				var displayType=window.getComputedStyle(this).display;
 				this.style.display="none";
-				this.setAttribute('data-originalDisplayValue',displayType)
 			});
 		},
 		show:function(){
 			return this.each(function(index){
-				var style=this.getAttribute('data-originalDisplayValue');
-				this.style.display=style;
-				this.removeAttribute('data-originalDisplayValue')
+				this.style.display='';
 			});
 		},
 		//misc
