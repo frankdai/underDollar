@@ -502,15 +502,14 @@
 			var result={};
 			var offsetTop=window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop||0;
 			var offsetLeft=window.pageXOffset||document.documentElement.scrollLeft||document.body.scrollLeft||0;
+			var rect=self.getBoundingClientRect();
 			if (viewport) {
-				result.left=self.getBoundingClientRect().left;
-				result.top=self.getBoundingClientRect().top;
-				console.log(1);
+				result.left=rect.left;
+				result.top=rect.top;
 			}
 			else {
-				result.top=self.getBoundingClientRect().top+offsetTop;
-				result.left=self.getBoundingClientRect().left+offsetLeft;
-				console.log(2);
+				result.left=rect.left+offsetLeft;
+				result.top=rect.top+offsetTop;
 			}
 			return result;
 		},
@@ -531,16 +530,12 @@
 		hide:function() {
 			var self=this;
 			return this.each(function(){
-				var displayType=window.getComputedStyle(this).display;
 				this.style.display="none";
-				this.setAttribute('data-originalDisplayValue',displayType)
 			});
 		},
 		show:function(){
 			return this.each(function(index){
-				var style=this.getAttribute('data-originalDisplayValue');
-				this.style.display=style;
-				this.removeAttribute('data-originalDisplayValue')
+				this.style.display="";
 			});
 		},
 		//misc
