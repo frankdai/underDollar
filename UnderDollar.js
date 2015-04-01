@@ -211,6 +211,29 @@
 				this.addEventListener(type,callback,false);
 			});
 		},
+		//touch event handling
+		swipeLeft:function(callback){
+			this.each(function(index,element){
+				var startX,endX,evt={},left=false,startTime,endTime;
+				this.addEventListener('touchstart',function(event){
+					startX=event.changedTouches[0].clientX;
+					startTime=new Date().getTime();
+				});
+				this.addEventListener('touchend',function(event){
+					var elapsed;
+					endX=event.changedTouches[0].clientX;
+					endTime=new Date().getTime();
+					elasped=endTime-startTime;
+					evt.time=elasped;
+					evt.distance=Math.abs(endX-startX);	
+					event.swipe=evt;
+					if (endX<startX) {
+						callback.call(this,event);
+					}
+				});
+			});
+			return this;
+		},
 		//class manipulation
 		addClass:function(value){
 			return this.each(function(){
