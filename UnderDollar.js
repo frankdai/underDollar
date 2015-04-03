@@ -1,33 +1,4 @@
 (function(window) {
-	/*Array indexOf pollyfill from MDN*/
-	if (!Array.prototype.indexOf) {
-  	Array.prototype.indexOf = function(searchElement, fromIndex) {
-    	var k;
-    	if (this == null) {
-      		throw new TypeError('"this" is null or not defined');
-    	}
-    	var O = Object(this);
-    	var len = O.length >>> 0;
-    	if (len === 0) {
-      		return -1;
-    	}
-    	var n = +fromIndex || 0;
-    	if (Math.abs(n) === Infinity) {
-     		 n = 0;
-    	}
-    	if (n >= len) {
-      		return -1;
-    	}
-    	k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
-    	while (k < len) {
-      		if (k in O && O[k] === searchElement) {
-        	return k;
-      	}
-      		k++;
-    	}
-    	return -1;
-  	};
-	}
 	//libraray-specific private functions
 	var utility={
 		ifClassList:function(){
@@ -135,6 +106,56 @@
 	        }
 	        return obj3;
     	},
+    	checkTouchDirection:function(element,callback,direction,travel) {
+    		var start,end,evt={},startTime,endTime;
+			var start=function(event){
+				if (direction==='left'||direction==='right') {
+					start=event.changedTouches[0].clientX;
+				}
+				if (direction==='up'||direction==='down') {
+					start=event.changedTouches[0].clientY;
+				}
+				startTime=new Date().getTime();
+			};
+			var end=function(event){
+				if (direction==='left'||direction==='right') {
+					end=event.changedTouches[0].clientX;
+				}
+				if (direction==='up'||direction==='down') {
+					end=event.changedTouches[0].clientY;
+				}
+				endTime=new Date().getTime();
+				evt.time=endTime-startTime;
+				evt.travel=Math.abs(end-start);
+				event.swipe=evt;
+				switch (direction) {
+					case 'left':
+					if (start>end&&event.swipe.travel>travel) {
+						callback.call(element,event);
+					}
+					break;
+					case 'right':
+					if (start<end&&event.swipe.travel>travel) {
+						callback.call(element,event);
+					}
+					break;
+					case 'up':
+					if (start>end&&event.swipe.travel>travel) {
+						callback.call(element,event);
+					}
+					break;
+					case 'down':
+					if (start<end&&event.swipe.travel>travel) {
+						callback.call(element,event);
+					}
+					break;
+					default:
+					return;
+				}
+			};
+			element.addEventListener('touchstart',start,false);
+			element.addEventListener('touchend',end,false);
+    	},
 	}
 	var UnderDollar=function (elements) {
 		var i;
@@ -212,25 +233,31 @@
 			});
 		},
 		//touch event handling
-		swipeLeft:function(callback){
+		swipeLeft:function(callback,travel){
+			travel=travel||50;
 			this.each(function(index,element){
-				var startX,endX,evt={},left=false,startTime,endTime;
-				this.addEventListener('touchstart',function(event){
-					startX=event.changedTouches[0].clientX;
-					startTime=new Date().getTime();
-				});
-				this.addEventListener('touchend',function(event){
-					var elapsed;
-					endX=event.changedTouches[0].clientX;
-					endTime=new Date().getTime();
-					elasped=endTime-startTime;
-					evt.time=elasped;
-					evt.distance=Math.abs(endX-startX);	
-					event.swipe=evt;
-					if (endX<startX) {
-						callback.call(this,event);
-					}
-				});
+				utility.checkTouchDirection(element,callback,'left',travel);
+			});
+			return this;
+		},
+		swipeRight:function(callback,travel){
+			travel=travel||50;
+			this.each(function(index,element){
+				utility.checkTouchDirection(element,callback,'right',travel);
+			});
+			return this;
+		},
+		slideUp:function(callback,travel){
+			travel=travel||50;
+			this.each(function(index,element){
+				utility.checkTouchDirection(element,callback,'up',travel);
+			});
+			return this;
+		},
+		slideDown:function(callback,travel){
+			travel=travel||50;
+			this.each(function(index,element){
+				utility.checkTouchDirection(element,callback,'down',travel);
 			});
 			return this;
 		},
